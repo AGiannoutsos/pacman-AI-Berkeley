@@ -47,6 +47,11 @@ class GoWestAgent(Agent):
     def getAction(self, state):
         "The agent receives a GameState (defined in pacman.py)."
         if Directions.WEST in state.getLegalPacmanActions():
+            print state.getPacmanPosition()
+            print state.getPacmanState()
+            print state.getPacmanState()
+            #print state.getWalls()
+            print state.getFood()
             return Directions.WEST
         else:
             return Directions.STOP
