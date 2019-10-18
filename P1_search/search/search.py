@@ -90,55 +90,37 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    """
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors((2,1))
-    print "Start's successors:", problem.getSuccessors((2,1))
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    """
 
-    DirectionDict = {"West":Directions.WEST , "East":Directions.EAST, \
-                 "South":Directions.SOUTH, "North":Directions.NORTH} 
+    #data stuctures
+    parent = {}
+    path = [] 
     visited = set()
     stackState = util.Stack()
-    path = util.Stack()
-    #nextStates = [ i[0] for i in problem.getSuccessors(problem.getStartState()) ]
+    #push start state
     state = problem.getStartState()
     stackState.push((state,))
-    visited.add(state)
-    parent = {}
-    path = []    
-    
-    #while not problem.isGoalState(state):
-    while not problem.isGoalState(state[0]):
-    	
+   
+    while not stackState.isEmpty():	
     	state = stackState.pop()
     	visited.update([state[0]])
+        #if end state break
         if problem.isGoalState(state[0]):
             break
-    	#print "i am ",state
     	nextStates = [ i for i in problem.getSuccessors(state[0]) ]
     	for nextState in nextStates:     
             if nextState[0] not in visited:              
                 stackState.push(nextState)
                 parent[nextState] = state
-                #visited.add(nextState)
-                #break
 
-    #print parent[state]
-    fpa = []
+    #construct the path
     path.append(state)
     while  problem.getStartState() != parent[state][0]:
         path.append(parent[state])
         state = path[-1]
     path.reverse()
-    for route in path:
-        #print route[1]
-        fpa.append(route[1])
+    path = [i[1] for i in path]
     
-    return fpa
+    return path
     #util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
