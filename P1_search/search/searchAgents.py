@@ -18,7 +18,7 @@ select an agent, use the '-p' option when running pacman.py.  Arguments can be
 passed to your agent using '-a'.  For example, to load a SearchAgent that uses
 depth first search (dfs), run the following command:
 
-> python pacman.py -p SearchAgent -a fn=depthFirstSearch
+>  python pacman.py -p SearchAgent -a fn=depthFirstSearch
 
 Commands to invoke other search strategies can be found in the project
 description.
