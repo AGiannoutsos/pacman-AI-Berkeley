@@ -75,6 +75,39 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+
+#general algorithm for dfs and bfs    
+def graphSearch(problem, dataStructure):
+    #generic data stuctures
+    structure = dataStructure()
+    actions = dataStructure()
+    visited = []
+    actionsForState = []
+
+    structure.push(problem.getStartState())
+    actions.push([])
+
+    while not structure.isEmpty():
+        #pop state and actions till this state
+        state = structure.pop()
+        actionsForState = actions.pop()
+        
+        #return path to goal state
+        if problem.isGoalState(state):
+            return actionsForState
+
+        #if state visited ingore
+        #only way to be visited again is to be in structure 2 times
+        if state not in visited:
+            visited.append(state)        
+            for successor in problem.getSuccessors(state):
+                if (successor[0] not in visited):
+                    #push the same time the path and state to parallel structures
+                    structure.push(successor[0])
+                    actions.push(actionsForState + [successor[1]])           
+                
+    util.raiseNotDefined()
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -90,172 +123,49 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-
-    #data stuctures
-    parent = {}
-    path = [] 
-    visited = set()
-    stackState = util.Stack()
-    #push start state
-    state = problem.getStartState()
-    stackState.push((state,))
-   
-    while not stackState.isEmpty():	
-    	state = stackState.pop()
-    	visited.update([state[0]])
-        #if end state break
-        if problem.isGoalState(state[0]):
-            break
-    	nextStates = problem.getSuccessors(state[0])
-    	for nextState in nextStates:     
-            if nextState[0] not in visited:              
-                stackState.push(nextState)
-                parent[nextState] = state
-
-    #construct the path
-    path.append(state)
-    while  problem.getStartState() != parent[state][0]:
-        path.append(parent[state])
-        state = path[-1]
-    path.reverse()
-    path = [i[1] for i in path]
-    
-    return path
-    #util.raiseNotDefined()
-def generalGraphSearch(problem, structure):
-    """
-    Defines a general algorithm to search a graph.
-    Parameters are structure, which can be any data structure with .push() and .pop() methods, and problem, which is the
-    search problem.
-    """
-
-    # Push the root node/start into the data structure in this format: [(state, action taken, cost)]
-    # The list pushed into the structure for the second node will look something like this:
-    # [(root_state, "Stop", 0), (new_state, "North", 1)]
-    structure.push([(problem.getStartState(), "Stop", 0)])
-
-    # Initialise the list of visited nodes to an empty list
-    visited = []
-
-    # While the structure is not empty, i.e. there are still elements to be searched,
-    while not structure.isEmpty():
-        # get the path returned by the data structure's .pop() method
-        path = structure.pop()
-
-        # The current state is the first element in the last tuple of the path
-        # i.e. [(root_state, "Stop", 0), (new_state, "North", 1)][-1][0] = (new_state, "North", 1)[0] = new_state
-        curr_state = path[-1][0]
-
-        # if the current state is the goal state,
-        if problem.isGoalState(curr_state):
-            # return the actions to the goal state
-            # which is the second element for each tuple in the path, ignoring the first "Stop"
-            return [x[1] for x in path][1:]
-
-        # if the current state has not been visited,
-        if curr_state not in visited:
-            # mark the current state as visited by appending to the visited list
-            visited.append(curr_state)
-
-            # for all the successors of the current state,
-            for successor in problem.getSuccessors(curr_state):
-                # successor[0] = (state, action, cost)[0] = state
-                # if the successor's state is unvisited,
-                if successor[0] not in visited:
-                    # Copy the parent's path
-                    successorPath = path[:]
-                    # Set the path of the successor node to the parent's path + the successor node
-                    successorPath.append(successor)
-                    # Push the successor's path into the structure
-                    structure.push(successorPath)
-
-    # If search fails, return False
-    return False
+    return graphSearch(problem,util.Stack)
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    #data stuctures
-
-
-    parent = {}
-    path = [] 
-    visited = set()
-    queued = set()
-    stackState = util.Queue()
-    #push start state
-    state = problem.getStartState()
-    stackState.push((state,))
-    queued.update((state,))
-    i = 0
-    nee = []
-    breakk = False
-    
-    while not stackState.isEmpty():
-        i += 1	
-        print i , stackState.list
-        state = stackState.pop()
-        visited.update([state[0]])
-
-        #if end state break
-        if problem.isGoalState(state[0]):
-            break
-        
-        
-
-        for nextState in problem.getSuccessors(state[0]):   
-            if ((nextState[0] not in visited)):
-                if problem.isGoalState(nextState[0]):
-                    stackState.push(nextState)
-                    parent[nextState] = state
-                    state = nextState
-                    breakk = True  
-                else:          
-                    stackState.push(nextState)
-                    parent[nextState] = state
-
-        if breakk:
-            break
-
-    #construct the path
-    path.append(state)
-    while  problem.getStartState() != parent[state][0]:
-        path.append(parent[state])
-        state = path[-1]
-    path.reverse()
-    path = [i[1] for i in path]
-
-    print path
-    return path
-    """
-    from util import Queue    
-    Frontier=Queue()
-    Explored_set = []
-
-    pathlist = []
-    Frontier.push((problem.getStartState(),pathlist))
-
-    while Frontier:
-    
-        state,actions_made = Frontier.pop()
-        Explored_set.append(state)
-
-        if problem.isGoalState(state):
-            return actions_made
-        
-        for succ in problem.getSuccessors(state): 
-            if succ[0] not in Explored_set:
-                Explored_set.append(succ[0])
-                Frontier.push((succ[0],actions_made+[succ[1]]))  
-
-    return []
-    """
-    #util.raiseNotDefined()
-    #util.raiseNotDefined()
+    return graphSearch(problem,util.Queue)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    """Search the node of least total cost first."""
+    "*** YOUR CODE HERE ***"
+    #data stuctures
+    structure = util.PriorityQueue()
+    actions = util.PriorityQueue()
+    visited = []
+    actionsForState = []
+    actions.push([],0)
+
+    while not structure.isEmpty():
+        print structure.pop()
+    
+    structure.push(problem.getStartState() ,0)
+
+    while not structure.isEmpty():
+        #pop state and actions till this state 
+        state = structure.pop()
+        actionsForState = actions.pop()
+
+        #return path to goal state
+        if problem.isGoalState(state):
+            #actionsForState = actions.pop()
+            return actionsForState
+            
+        if state not in visited: 
+            visited.append(state)  
+            for successor in problem.getSuccessors(state):
+                if (successor[0] not in visited):
+                    #push the same time the path and state to parallel structures
+                    cost = problem.getCostOfActions(actionsForState + [successor[1]])
+                    structure.push(successor[0],cost )
+                    actions.push(actionsForState + [successor[1]],cost)           
+              
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -268,6 +178,37 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    structure = util.PriorityQueue()
+    actions = util.PriorityQueue()
+    visited = []
+    actionsForState = []
+    actions.push([],0)
+
+    while not structure.isEmpty():
+        print structure.pop()
+    
+    structure.push(problem.getStartState() ,0)
+
+    while not structure.isEmpty():
+        #pop state and actions till this state 
+        state = structure.pop()
+        actionsForState = actions.pop()
+
+        #return path to goal state
+        if problem.isGoalState(state):
+            #actionsForState = actions.pop()
+            return actionsForState
+            
+        if state not in visited: 
+            visited.append(state)  
+            for successor in problem.getSuccessors(state):
+                if (successor[0] not in visited):
+                    #push the same time the path and state to parallel structures
+                    #add the heuristic value
+                    cost = problem.getCostOfActions(actionsForState + [successor[1]]) + heuristic(successor[0],problem)
+                    structure.push(successor[0],cost )
+                    actions.push(actionsForState + [successor[1]],cost)           
+
     util.raiseNotDefined()
 
 
