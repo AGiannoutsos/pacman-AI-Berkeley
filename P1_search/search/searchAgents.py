@@ -392,9 +392,9 @@ def cornersHeuristic(state, problem):
     
     distanceToCorners = []
     #get the closest corner
-    for index, corner in enumerate(corners):
+    for corner in corners:
         #check if visited
-        if not state[1][index]:
+        if not state[1][corners.index(corner)]:
             distanceToCorners.append(util.manhattanDistance(state[0],corner))
     #check of ther is distance
     if distanceToCorners:
@@ -426,7 +426,8 @@ class FoodSearchProblem:
         self.startingGameState = startingGameState
         self._expanded = 0 # DO NOT CHANGE
         self.heuristicInfo = {} # A dictionary for the heuristic to store information
-
+        self.heuristicInfo["counter"] = 0 
+        self.heuristicInfo["furthestFood"] = 0 
     def getStartState(self):
         return self.start
 
@@ -497,7 +498,35 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    #food Check Times
+    #get furthest food
+    furthestFood = 0
+    keepLastPos = True
+
+        
+    if problem.heuristicInfo.get("previousPosition"):
+        preState = problem.heuristicInfo["previousPosition"]
+        if util.manhattanDistance(preState[0][0],position) <= 6 and preState[0][1] == foodGrid:
+            keepLastPos = False
+            furthestFood = util.manhattanDistance(preState[1],position)
+    
+    if not furthestFood:
+        foodDistance = []
+        for food in foodGrid.asList():
+            foodDistance.append(util.manhattanDistance(position,food))
+        if foodDistance:
+            furthestFood = max(foodDistance)
+            if keepLastPos:
+                #print "ame" , food
+                maxFood = foodGrid.asList()[foodDistance.index(furthestFood)]
+                problem.heuristicInfo["previousPosition"] = state,maxFood
+            #print furthestFood
+        else:
+            furthestFood = 0
+    
+    
+
+    return furthestFood
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
