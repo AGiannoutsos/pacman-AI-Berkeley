@@ -91,7 +91,6 @@ def graphSearch(problem, dataStructure):
         #pop state and actions till this state
         state = structure.pop()
         actionsForState = actions.pop()
-        
         #return path to goal state
         if problem.isGoalState(state):
             return actionsForState
@@ -104,8 +103,9 @@ def graphSearch(problem, dataStructure):
                 if (successor[0] not in visited):
                     #push the same time the path and state to parallel structures
                     structure.push(successor[0])
-                    actions.push(actionsForState + [successor[1]])           
-                
+                    actions.push(actionsForState + [successor[1]])
+
+    return []            
     util.raiseNotDefined()
 
 def depthFirstSearch(problem):
@@ -133,8 +133,6 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
     #data stuctures
     structure = util.PriorityQueue()
     actions = util.PriorityQueue()
@@ -148,10 +146,11 @@ def uniformCostSearch(problem):
     structure.push(problem.getStartState() ,0)
 
     while not structure.isEmpty():
+        print actions.heap
         #pop state and actions till this state 
         state = structure.pop()
         actionsForState = actions.pop()
-
+        
         #return path to goal state
         if problem.isGoalState(state):
             #actionsForState = actions.pop()
@@ -163,6 +162,13 @@ def uniformCostSearch(problem):
                 if (successor[0] not in visited):
                     #push the same time the path and state to parallel structures
                     cost = problem.getCostOfActions(actionsForState + [successor[1]])
+                    print "new",cost
+                    if actions.heap:
+                        old = problem.getCostOfActions(actions.heap[-1][2])
+                        print "old",old
+                        
+                        if cost < old:
+                            print "naiiiiiiiiiii"
                     structure.push(successor[0],cost )
                     actions.push(actionsForState + [successor[1]],cost)           
               
@@ -184,8 +190,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     actionsForState = []
     actions.push([],0)
 
-    while not structure.isEmpty():
-        print structure.pop()
+    #while not structure.isEmpty():
+    #    print structure.pop()
     
     structure.push(problem.getStartState() ,0)
 
