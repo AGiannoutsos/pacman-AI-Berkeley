@@ -426,8 +426,6 @@ class FoodSearchProblem:
         self.startingGameState = startingGameState
         self._expanded = 0 # DO NOT CHANGE
         self.heuristicInfo = {} # A dictionary for the heuristic to store information
-        self.heuristicInfo["counter"] = 0 
-        self.heuristicInfo["furthestFood"] = 0 
     def getStartState(self):
         return self.start
 
@@ -498,20 +496,25 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
+    def euclideanHeuristic(position, problem, info={}):
+        "The Euclidean distance heuristic for a PositionSearchProblem"
+        xy1 = position
+        xy2 = problem
+        return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
     #food Check Times
     #get furthest food
     furthestFood = 0
     keepLastPos = True
-
+    foodDistance = []
         
     if problem.heuristicInfo.get("previousPosition"):
         preState = problem.heuristicInfo["previousPosition"]
-        if util.manhattanDistance(preState[0][0],position) <= 6 and preState[0][1] == foodGrid:
+        if util.manhattanDistance(preState[0][0],position) <= 5 and preState[0][1] == foodGrid:
             keepLastPos = False
             furthestFood = util.manhattanDistance(preState[1],position)
     
     if not furthestFood:
-        foodDistance = []
+        
         for food in foodGrid.asList():
             foodDistance.append(util.manhattanDistance(position,food))
         if foodDistance:
@@ -557,7 +560,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.breadthFirstSearch(problem)
+        
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -593,7 +597,9 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
+        
+        
 
 def mazeDistance(point1, point2, gameState):
     """
