@@ -47,11 +47,6 @@ class GoWestAgent(Agent):
     def getAction(self, state):
         "The agent receives a GameState (defined in pacman.py)."
         if Directions.WEST in state.getLegalPacmanActions():
-            print state.getPacmanPosition()
-            print state.getPacmanState()
-            print state.getPacmanState()
-            #print state.getWalls()
-            print state.getFood()
             return Directions.WEST
         else:
             return Directions.STOP
@@ -496,39 +491,15 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    def euclideanHeuristic(position, problem, info={}):
-        "The Euclidean distance heuristic for a PositionSearchProblem"
-        xy1 = position
-        xy2 = problem
-        return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
-    #food Check Times
-    #get furthest food
-    furthestFood = 0
-    keepLastPos = True
-    foodDistance = []
-        
-    if problem.heuristicInfo.get("previousPosition"):
-        preState = problem.heuristicInfo["previousPosition"]
-        if util.manhattanDistance(preState[0][0],position) <= 5 and preState[0][1] == foodGrid:
-            keepLastPos = False
-            furthestFood = util.manhattanDistance(preState[1],position)
+    #get the real distance of furthest food
+    foodDistance = []    
+    for food in foodGrid.asList():
+        foodDistance.append(mazeDistance(position,food,problem.startingGameState))
+    if foodDistance:
+        furthestFood = max(foodDistance)
+    else:
+        furthestFood = 0
     
-    if not furthestFood:
-        
-        for food in foodGrid.asList():
-            foodDistance.append(util.manhattanDistance(position,food))
-        if foodDistance:
-            furthestFood = max(foodDistance)
-            if keepLastPos:
-                #print "ame" , food
-                maxFood = foodGrid.asList()[foodDistance.index(furthestFood)]
-                problem.heuristicInfo["previousPosition"] = state,maxFood
-            #print furthestFood
-        else:
-            furthestFood = 0
-    
-    
-
     return furthestFood
 
 class ClosestDotSearchAgent(SearchAgent):

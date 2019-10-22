@@ -106,7 +106,6 @@ def graphSearch(problem, dataStructure):
                     actions.push(actionsForState + [successor[1]])
 
     return []            
-    util.raiseNotDefined()
 
 def depthFirstSearch(problem):
     """
@@ -138,15 +137,10 @@ def uniformCostSearch(problem):
     actions = util.PriorityQueue()
     visited = []
     actionsForState = []
-    actions.push([],0)
-
-    while not structure.isEmpty():
-        print structure.pop()
-    
+    actions.push([],0)    
     structure.push(problem.getStartState() ,0)
 
     while not structure.isEmpty():
-        print actions.heap
         #pop state and actions till this state 
         state = structure.pop()
         actionsForState = actions.pop()
@@ -161,18 +155,11 @@ def uniformCostSearch(problem):
             for successor in problem.getSuccessors(state):
                 if (successor[0] not in visited):
                     #push the same time the path and state to parallel structures
-                    cost = problem.getCostOfActions(actionsForState + [successor[1]])
-                    print "new",cost
-                    if actions.heap:
-                        old = problem.getCostOfActions(actions.heap[-1][2])
-                        print "old",old
-                        
-                        if cost < old:
-                            print "naiiiiiiiiiii"
+                    cost = problem.getCostOfActions(actionsForState + [successor[1]])    
                     structure.push(successor[0],cost )
                     actions.push(actionsForState + [successor[1]],cost)           
               
-    util.raiseNotDefined()
+    return []
 
 def nullHeuristic(state, problem=None):
     """
@@ -189,10 +176,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     visited = []
     actionsForState = []
     actions.push([],0)
-
-    #while not structure.isEmpty():
-    #    print structure.pop()
-    
     structure.push(problem.getStartState() ,0)
 
     while not structure.isEmpty():
@@ -215,7 +198,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                     structure.push(successor[0],cost )
                     actions.push(actionsForState + [successor[1]],cost)           
 
-    util.raiseNotDefined()
+    return []
 
 
 # Abbreviations
