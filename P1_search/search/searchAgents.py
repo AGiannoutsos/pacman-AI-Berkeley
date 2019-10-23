@@ -460,7 +460,7 @@ class AStarFoodSearchAgent(SearchAgent):
     def __init__(self):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
-
+times = 0
 def foodHeuristic(state, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -491,15 +491,29 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    #get the real distance of furthest food
-    foodDistance = []    
-    for food in foodGrid.asList():
-        foodDistance.append(mazeDistance(position,food,problem.startingGameState))
-    if foodDistance:
-        furthestFood = max(foodDistance)
-    else:
-        furthestFood = 0
     
+    
+    furthestFood = 0
+    #tell if next position is near the previous position
+    if problem.heuristicInfo.get("previousPosition"):
+        preState = problem.heuristicInfo["previousPosition"]
+        #if close to near position chose the previous furthest node
+        if util.manhattanDistance(preState[0][0],position) <= 1 and preState[0][1] == foodGrid:
+            furthestFood = mazeDistance(preState[1],position,problem.startingGameState)
+    
+    if not furthestFood:
+        #get the real distance of furthest food
+        foodDistance = []    
+        for food in foodGrid.asList():
+            foodDistance.append(mazeDistance(position,food,problem.startingGameState))
+        if foodDistance:
+            #get furthest food and store it
+            furthestFood = max(foodDistance)
+            maxFood = foodGrid.asList()[foodDistance.index(furthestFood)]
+            problem.heuristicInfo["previousPosition"] = state,maxFood
+        else:
+            furthestFood = 0
+        
     return furthestFood
 
 class ClosestDotSearchAgent(SearchAgent):
