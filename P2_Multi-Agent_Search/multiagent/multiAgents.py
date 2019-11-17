@@ -74,7 +74,40 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        # Get distance from pacman to ghosts in new position
+        #print successorGameState.getGhostPositions()[0]
+        totalGhostPosition = 0
+        ghostState = 1
+        pacmanGhostDistance = [util.manhattanDistance(newPos,ghost) for ghost in successorGameState.getGhostPositions()]
+        closestGhostDistance = min(pacmanGhostDistance)
+        
+        # Get closest food
+        foodPos = []
+        minFoodDist = 0
+        for i, food_x in enumerate(newFood):
+          for j, food in enumerate(newFood[i]):
+            if food:
+              foodPos.append(util.manhattanDistance(newPos,(i,j)))
+        if foodPos:
+          minFoodDist = min(foodPos)
+
+        # Get capsule position
+        minCapsuleDist = 0
+        capsulesPos = [util.manhattanDistance(newPos,capsule) for capsule in successorGameState.getCapsules()]
+        if capsulesPos:
+          minCapsuleDist = min(capsulesPos)
+        
+        # Chase ghost if eaten
+        if newScaredTimes[0] != 0:
+          ghostState = 0.5
+
+
+        if currentGameState.hasFood(newPos[0], newPos[1]):
+          closestGhostDistance = closestGhostDistance + 100.0
+          #print closestGhostDistance
+        #print ghostState*closestGhostDistance, - 5*minFoodDist, - 10*minCapsuleDist, newScaredTimes
+        return ghostState*closestGhostDistance - 5*minFoodDist - 10*minCapsuleDist
+        # GhostPos - FoodPos - 10*CapsulePos
 
 def scoreEvaluationFunction(currentGameState):
     """
