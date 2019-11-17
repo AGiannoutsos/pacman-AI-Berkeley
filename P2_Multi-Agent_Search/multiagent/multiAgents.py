@@ -17,7 +17,8 @@ from game import Directions
 import random, util
 
 from game import Agent
-
+def ghostDistance(x):
+  return (0.05*(x-20)**2) + 50
 class ReflexAgent(Agent):
     """
       A reflex agent chooses an action at each choice point by examining
@@ -51,6 +52,7 @@ class ReflexAgent(Agent):
 
         return legalMoves[chosenIndex]
 
+
     def evaluationFunction(self, currentGameState, action):
         """
         Design a better evaluation function here.
@@ -75,11 +77,11 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
         # Get distance from pacman to ghosts in new position
-        #print successorGameState.getGhostPositions()[0]
         totalGhostPosition = 0
-        ghostState = 1
+        ghostState = 2
         pacmanGhostDistance = [util.manhattanDistance(newPos,ghost) for ghost in successorGameState.getGhostPositions()]
         closestGhostDistance = min(pacmanGhostDistance)
+
         
         # Get closest food
         foodPos = []
@@ -99,14 +101,13 @@ class ReflexAgent(Agent):
         
         # Chase ghost if eaten
         if newScaredTimes[0] != 0:
-          ghostState = 0.5
-
+          ghostState = 1
 
         if currentGameState.hasFood(newPos[0], newPos[1]):
-          closestGhostDistance = closestGhostDistance + 100.0
-          #print closestGhostDistance
-        #print ghostState*closestGhostDistance, - 5*minFoodDist, - 10*minCapsuleDist, newScaredTimes
-        return ghostState*closestGhostDistance - 5*minFoodDist - 10*minCapsuleDist
+          minFoodDist -= 10
+
+        #print pacmanGhostDistance, closestGhostDistance
+        return 1*closestGhostDistance - 1*minFoodDist
         # GhostPos - FoodPos - 10*CapsulePos
 
 def scoreEvaluationFunction(currentGameState):
