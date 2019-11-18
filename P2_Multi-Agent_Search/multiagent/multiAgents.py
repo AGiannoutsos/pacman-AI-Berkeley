@@ -77,12 +77,9 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
         # Get distance from pacman to ghosts in new position
-        totalGhostPosition = 0
-        ghostState = 2
         pacmanGhostDistance = [util.manhattanDistance(newPos,ghost) for ghost in successorGameState.getGhostPositions()]
-        closestGhostDistance = min(pacmanGhostDistance)
+        minGhostDis = min(pacmanGhostDistance)
 
-        
         # Get closest food
         foodPos = []
         minFoodDist = 0
@@ -98,17 +95,12 @@ class ReflexAgent(Agent):
         capsulesPos = [util.manhattanDistance(newPos,capsule) for capsule in successorGameState.getCapsules()]
         if capsulesPos:
           minCapsuleDist = min(capsulesPos)
-        
-        # Chase ghost if eaten
-        if newScaredTimes[0] != 0:
-          ghostState = 1
 
+        # Promote a position if has food
         if currentGameState.hasFood(newPos[0], newPos[1]):
           minFoodDist -= 10
-
-        #print pacmanGhostDistance, closestGhostDistance
-        return 1*closestGhostDistance - 1*minFoodDist
-        # GhostPos - FoodPos - 10*CapsulePos
+        
+        return  minGhostDis - minFoodDist
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -163,7 +155,37 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # for i in range(4):
+          # print  gameState.getLegalActions(i),10, self.evaluationFunction(gameState),23 ,self.depth
+
+        def minimax(state, agent, depth):
+          legalMoves = state.getLegalActions(agent)
+          # If no moves or end of depth return
+          if (not legalMoves) or (depth == self.depth):
+            return (self.evaluationFunction(state), Directions.STOP)
+
+          # Ghost agents that are not 0 or over the total agent number
+          if (agent > 0 and agent < gameState.getNumAgents()):
+            # For next Ghost agent if the next is pacman then update the depth
+            if agent+1 == gameState.getNumAgents():
+              agent = -1
+              depth += 1
+
+            costPerAction = []
+            for action in legalMoves:
+              costPerAction.append(minimax(state.generateSuccessor(agent, action),agent + 1,depth)[0])
+            minCost = (min(costPerAction))
+            return (minCost , legalMoves[costPerAction.index(minCost)])
+            
+          # Max player pacman
+          else:
+            costPerAction = []
+            for action in legalMoves:
+              costPerAction.append(minimax(state.generateSuccessor(0, action),1,depth)[0])
+            maxCost = (max(costPerAction))
+            return (maxCost , legalMoves[costPerAction.index(maxCost)])
+
+        return minimax(gameState,0,0)[1]
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -175,7 +197,49 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        inf = 1000000000
+        
+
+        def AlphaBeta(state, agent, depth, a, b):
+          legalMoves = state.getLegalActions(agent)
+          # If no moves or end of depth return
+          if (not legalMoves) or (depth == self.depth):
+            return (self.evaluationFunction(state), Directions.STOP)
+
+          # Ghost agents that are not 0 or over the total agent number
+          if (agent > 0 and agent < gameState.getNumAgents()):
+            # For next Ghost agent if the next is pacman then update the depth
+            if agent+1 == gameState.getNumAgents():
+              agent = -1
+              depth += 1
+
+            costPerAction = []
+            value = inf
+            for action in legalMoves:
+              value = AlphaBeta(state.generateSuccessor(agent, action),agent + 1,depth, a, b)[0]
+              costPerAction.append(value)
+              # if value lower than the lower bound then certainly ghost will chose that path
+              if value < a:
+                break
+              b = min(value,b)
+            minCost = min(costPerAction)
+            return (minCost , legalMoves[costPerAction.index(minCost)])
+            
+          # Max player pacman
+          else:
+            costPerAction = []
+            value = inf
+            for action in legalMoves:
+              value = AlphaBeta(state.generateSuccessor(0, action),1,depth, a, b)[0]
+              costPerAction.append(value)
+              # if value greater than upper bound then pacman certainly will chose that path
+              if value > b:
+                break
+              a = max(value,a)
+            maxCost = max(costPerAction)
+            return (maxCost , legalMoves[costPerAction.index(maxCost)])
+
+        return AlphaBeta(gameState,0,0,-inf,inf)[1]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -190,7 +254,38 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def minimax(state, agent, depth):
+          legalMoves = state.getLegalActions(agent)
+          # If no moves or end of depth return
+          if (not legalMoves) or (depth == self.depth):
+            return (self.evaluationFunction(state), Directions.STOP)
+
+          # Chance nodes
+          # Calculate the propability 
+          if (agent > 0 and agent < gameState.getNumAgents()):
+            # For next Ghost agent if the next is pacman then update the depth
+            if agent+1 == gameState.getNumAgents():
+              agent = -1
+              depth += 1
+
+            costPerAction = []
+            for action in legalMoves:
+              costPerAction.append(minimax(state.generateSuccessor(agent, action),agent + 1,depth)[0])
+            # sum/number of moves because ghosts are doing uniformly random actions
+            averageCost = sum(costPerAction)/len(legalMoves) 
+            # actions dont matter in this occasion
+            return (averageCost, Directions.STOP)
+            
+          # Max player pacman
+          else:
+            costPerAction = []
+            for action in legalMoves:
+              costPerAction.append(minimax(state.generateSuccessor(0, action),1,depth)[0])
+            maxCost = (max(costPerAction))
+            return (maxCost , legalMoves[costPerAction.index(maxCost)])
+
+        return minimax(gameState,0,0)[1]
+
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -200,7 +295,27 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacmanPos = currentGameState.getPacmanPosition()
+    foodPos = currentGameState.getFood().asList()
+    ghostsPos = currentGameState.getGhostPositions()
+
+    # Get distance from pacman to ghosts in new position
+    pacmanGhostDist = [util.manhattanDistance(pacmanPos,ghost) for ghost in ghostsPos]
+    minGhostDist = min(pacmanGhostDist)
+
+    # Get closest food position
+    minFoodDist = 0
+    pacmanFoodDist = [util.manhattanDistance(pacmanPos,food) for food in foodPos]
+    if pacmanFoodDist:
+      minFoodDist = min(pacmanFoodDist)
+
+    # Get number of close foods under 4 distance
+    closeFoods = []
+    if pacmanFoodDist:
+      closeFoods = [food for food in foodPos if util.manhattanDistance(pacmanPos,food) < 4]
+
+    
+    return minGhostDist - minFoodDist + 0.8*currentGameState.getScore()
 
 # Abbreviation
 better = betterEvaluationFunction
