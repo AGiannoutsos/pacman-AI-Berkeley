@@ -298,6 +298,8 @@ def betterEvaluationFunction(currentGameState):
     pacmanPos = currentGameState.getPacmanPosition()
     foodPos = currentGameState.getFood().asList()
     ghostsPos = currentGameState.getGhostPositions()
+    capsulesPos = currentGameState.getCapsules()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in currentGameState.getGhostStates()]
 
     # Get distance from pacman to ghosts in new position
     pacmanGhostDist = [util.manhattanDistance(pacmanPos,ghost) for ghost in ghostsPos]
@@ -308,14 +310,32 @@ def betterEvaluationFunction(currentGameState):
     pacmanFoodDist = [util.manhattanDistance(pacmanPos,food) for food in foodPos]
     if pacmanFoodDist:
       minFoodDist = min(pacmanFoodDist)
-
-    # Get number of close foods under 4 distance
-    closeFoods = []
-    if pacmanFoodDist:
-      closeFoods = [food for food in foodPos if util.manhattanDistance(pacmanPos,food) < 4]
-
     
-    return minGhostDist - minFoodDist + 0.8*currentGameState.getScore()
+    stateEval = 0
+
+    # Change behaviour when ghost is dar or near
+    if minGhostDist < 10:
+      stateEval +=  0.2*minGhostDist
+      stateEval -= 0.9*minFoodDist
+    if minGhostDist > 10:
+      stateEval +=  0.1*minGhostDist
+      stateEval -= 1*minFoodDist
+
+    # To get higher scores pacman must get the capsules and chase the ghost  
+    if capsulesPos:
+      stateEval -= 1000*len(capsulesPos)
+
+    # Bost the eating proccess and give a value to it
+    stateEval -= minFoodDist
+    stateEval -= 20*len(foodPos)
+
+    # If ghost is scared become a ghost Hunter!!
+    if newScaredTimes[0]:
+      stateEval = 0
+      stateEval -= 20*minGhostDist
+
+    return stateEval + 0.5*currentGameState.getScore()
+
 
 # Abbreviation
 better = betterEvaluationFunction
